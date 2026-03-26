@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Transparé — Know What's In Your Skincare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0e0e0c;
+  --cream:#e8dcc8;
+  --cream-dim:rgba(232,220,200,0.5);
+  --cream-faint:rgba(232,220,200,0.12);
+  --cream-border:rgba(232,220,200,0.15);
+  --red:#c0392b;
+  --amber:#b8860b;
+  --green:#2d6a4f;
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--cream);
+  font-family:'DM Sans',sans-serif;
+  font-weight:300;
+  line-height:1.7;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── noise texture overlay ── */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ── nav ── */
+nav{
+  position:fixed;
+  top:0;left:0;right:0;
+  z-index:100;
+  padding:20px 40px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:rgba(14,14,12,0.85);
+  backdrop-filter:blur(12px);
+  border-bottom:0.5px solid var(--cream-border);
+}
+.nav-logo{
+  font-family:'DM Serif Display',serif;
+  font-size:18px;
+  letter-spacing:0.12em;
+  color:var(--cream);
+  text-decoration:none;
+}
+.nav-cta{
+  background:var(--cream);
+  color:var(--bg);
+  border:none;
+  padding:8px 20px;
+  border-radius:2px;
+  font-family:'DM Sans',sans-serif;
+  font-size:12px;
+  font-weight:500;
+  letter-spacing:0.06em;
+  cursor:pointer;
+  text-decoration:none;
+  transition:opacity 0.2s;
+}
+.nav-cta:hover{opacity:0.85}
+
+/* ── hero ── */
+.hero{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:flex-start;
+  padding:120px 40px 80px;
+  position:relative;
+  z-index:1;
+  max-width:900px;
+}
+.hero-eyebrow{
+  font-size:11px;
+  letter-spacing:0.16em;
+  color:var(--cream-dim);
+  text-transform:uppercase;
+  margin-bottom:24px;
+  opacity:0;
+  animation:fadeUp 0.8s 0.2s ease forwards;
+}
+.hero h1{
+  font-family:'DM Serif Display',serif;
+  font-size:clamp(48px,7vw,88px);
+  font-weight:400;
+  line-height:1.05;
+  color:var(--cream);
+  margin-bottom:28px;
+  opacity:0;
+  animation:fadeUp 0.8s 0.35s ease forwards;
+}
+.hero h1 em{
+  font-style:italic;
+  color:var(--cream-dim);
+}
+.hero-sub{
+  font-size:17px;
+  color:var(--cream-dim);
+  max-width:500px;
+  margin-bottom:48px;
+  opacity:0;
+  animation:fadeUp 0.8s 0.5s ease forwards;
+  font-weight:300;
+}
+.hero-actions{
+  display:flex;
+  gap:16px;
+  align-items:center;
+  flex-wrap:wrap;
+  opacity:0;
+  animation:fadeUp 0.8s 0.65s ease forwards;
+}
+.btn-primary{
+  background:var(--cream);
+  color:var(--bg);
+  border:none;
+  padding:14px 32px;
+  border-radius:2px;
+  font-family:'DM Sans',sans-serif;
+  font-size:13px;
+  font-weight:500;
+  letter-spacing:0.04em;
+  cursor:pointer;
+  text-decoration:none;
+  display:inline-block;
+  transition:opacity 0.2s,transform 0.2s;
+}
+.btn-primary:hover{opacity:0.9;transform:translateY(-1px)}
+.btn-ghost{
+  color:var(--cream-dim);
+  font-size:13px;
+  text-decoration:none;
+  letter-spacing:0.04em;
+  border-bottom:0.5px solid var(--cream-border);
+  padding-bottom:2px;
+  transition:color 0.2s;
+}
+.btn-ghost:hover{color:var(--cream)}
+.hero-note{
+  font-size:11px;
+  color:rgba(232,220,200,0.25);
+  margin-top:16px;
+  opacity:0;
+  animation:fadeUp 0.8s 0.8s ease forwards;
+}
+
+/* ── floating demo mockup ── */
+.hero-mockup{
+  position:fixed;
+  right:60px;
+  top:50%;
+  transform:translateY(-50%);
+  width:280px;
+  background:#1a1a18;
+  border:0.5px solid var(--cream-border);
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 40px 80px rgba(0,0,0,0.6);
+  opacity:0;
+  animation:slideIn 1s 0.9s ease forwards;
+  z-index:2;
+}
+@media(max-width:900px){.hero-mockup{display:none}}
+.mock-header{
+  padding:14px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:0.5px solid var(--cream-border);
+}
+.mock-logo{
+  font-family:'DM Serif Display',serif;
+  font-size:12px;
+  letter-spacing:0.1em;
+  color:var(--cream);
+}
+.mock-score{
+  width:32px;height:32px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:500;
+  background:#c0392b;
+  color:#fff;
+}
+.mock-body{padding:14px 16px}
+.mock-product{font-size:12px;font-weight:500;color:var(--cream);margin-bottom:4px}
+.mock-brand{font-size:10px;color:var(--cream-dim);margin-bottom:12px}
+.mock-verdict{
+  background:rgba(192,57,43,0.15);
+  border:0.5px solid rgba(192,57,43,0.3);
+  border-radius:6px;
+  padding:8px 10px;
+  font-size:10px;
+  color:#e07070;
+  margin-bottom:12px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.mock-dot{width:6px;height:6px;border-radius:50%;background:#c0392b;flex-shrink:0}
+.mock-label{font-size:9px;letter-spacing:0.1em;color:var(--cream-dim);text-transform:uppercase;margin-bottom:8px}
+.mock-flag{
+  background:var(--cream-faint);
+  border-radius:6px;
+  padding:8px 10px;
+  margin-bottom:6px;
+  display:flex;
+  gap:8px;
+  align-items:flex-start;
+}
+.mock-pill{
+  font-size:8px;
+  font-weight:500;
+  padding:2px 6px;
+  border-radius:3px;
+  flex-shrink:0;
+  margin-top:1px;
+}
+.pill-red{background:rgba(192,57,43,0.2);color:#e07070}
+.pill-amber{background:rgba(184,134,11,0.2);color:#d4a017}
+.mock-flag-name{font-size:11px;font-weight:500;color:var(--cream)}
+.mock-flag-desc{font-size:9px;color:var(--cream-dim);line-height:1.4;margin-top:2px}
+
+/* ── scan animation ── */
+.scan-line{
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(232,220,200,0.4),transparent);
+  animation:scan 2s ease-in-out infinite;
+  margin-bottom:12px;
+}
+@keyframes scan{0%,100%{opacity:0;transform:translateY(-10px)}50%{opacity:1;transform:translateY(0)}}
+
+/* ── how it works ── */
+.section{
+  padding:100px 40px;
+  position:relative;
+  z-index:1;
+  max-width:1100px;
+  margin:0 auto;
+}
+.section-label{
+  font-size:10px;
+  letter-spacing:0.16em;
+  color:var(--cream-dim);
+  text-transform:uppercase;
+  margin-bottom:48px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.section-label::after{
+  content:'';
+  flex:1;
+  height:0.5px;
+  background:var(--cream-border);
+}
+.steps{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:1px;
+  background:var(--cream-border);
+  border:0.5px solid var(--cream-border);
+}
+.step{
+  background:var(--bg);
+  padding:40px 32px;
+}
+.step-num{
+  font-family:'DM Serif Display',serif;
+  font-size:48px;
+  color:rgba(232,220,200,0.08);
+  line-height:1;
+  margin-bottom:16px;
+}
+.step-title{
+  font-size:15px;
+  font-weight:500;
+  color:var(--cream);
+  margin-bottom:8px;
+}
+.step-desc{
+  font-size:13px;
+  color:var(--cream-dim);
+  line-height:1.6;
+}
+
+/* ── ingredients flagged section ── */
+.ingredients-section{
+  padding:0 40px 100px;
+  position:relative;z-index:1;
+  max-width:1100px;
+  margin:0 auto;
+}
+.ing-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:1px;
+  background:var(--cream-border);
+  border:0.5px solid var(--cream-border);
+  margin-top:48px;
+}
+.ing-card{
+  background:var(--bg);
+  padding:20px 24px;
+}
+.ing-name{font-size:13px;font-weight:500;color:var(--cream);margin-bottom:4px}
+.ing-rating{font-size:10px;color:var(--cream-dim)}
+.ing-dots{display:inline-flex;gap:2px;margin-right:4px}
+.dot-filled{width:6px;height:6px;border-radius:50%;background:var(--cream);opacity:0.8}
+.dot-empty{width:6px;height:6px;border-radius:50%;background:var(--cream);opacity:0.15}
+
+/* ── trust section ── */
+.trust{
+  padding:100px 40px;
+  border-top:0.5px solid var(--cream-border);
+  position:relative;z-index:1;
+}
+.trust-inner{
+  max-width:700px;
+  margin:0 auto;
+  text-align:center;
+}
+.trust h2{
+  font-family:'DM Serif Display',serif;
+  font-size:clamp(32px,4vw,52px);
+  font-weight:400;
+  line-height:1.15;
+  margin-bottom:20px;
+}
+.trust h2 em{font-style:italic;color:var(--cream-dim)}
+.trust p{
+  font-size:15px;
+  color:var(--cream-dim);
+  margin-bottom:40px;
+  max-width:480px;
+  margin-left:auto;
+  margin-right:auto;
+}
+.source-badges{
+  display:flex;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:48px;
+}
+.source-badge{
+  border:0.5px solid var(--cream-border);
+  padding:6px 16px;
+  border-radius:2px;
+  font-size:11px;
+  color:var(--cream-dim);
+  letter-spacing:0.04em;
+}
+
+/* ── email capture ── */
+.capture{
+  padding:100px 40px;
+  background:var(--cream-faint);
+  border-top:0.5px solid var(--cream-border);
+  border-bottom:0.5px solid var(--cream-border);
+  position:relative;z-index:1;
+  text-align:center;
+}
+.capture h2{
+  font-family:'DM Serif Display',serif;
+  font-size:clamp(28px,3.5vw,44px);
+  font-weight:400;
+  margin-bottom:12px;
+}
+.capture p{
+  font-size:14px;
+  color:var(--cream-dim);
+  margin-bottom:32px;
+}
+.capture-form{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  max-width:440px;
+  margin:0 auto;
+}
+.email-input{
+  flex:1;
+  background:rgba(255,255,255,0.06);
+  border:0.5px solid var(--cream-border);
+  border-radius:2px;
+  padding:12px 16px;
+  color:var(--cream);
+  font-family:'DM Sans',sans-serif;
+  font-size:13px;
+  outline:none;
+  transition:border-color 0.2s;
+}
+.email-input::placeholder{color:rgba(232,220,200,0.25)}
+.email-input:focus{border-color:rgba(232,220,200,0.4)}
+.capture-note{font-size:11px;color:rgba(232,220,200,0.25);margin-top:12px}
+.success-msg{
+  display:none;
+  font-size:14px;
+  color:var(--cream);
+  padding:12px;
+}
+
+/* ── footer ── */
+footer{
+  padding:40px;
+  text-align:center;
+  font-size:11px;
+  color:rgba(232,220,200,0.2);
+  position:relative;z-index:1;
+  letter-spacing:0.06em;
+}
+
+/* ── animations ── */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes slideIn{
+  from{opacity:0;transform:translateY(-40%) translateX(20px)}
+  to{opacity:1;transform:translateY(-50%) translateX(0)}
+}
+
+/* ── scroll reveals ── */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.7s ease,transform 0.7s ease}
+.reveal.visible{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="nav-logo">TRANSPARÉ</a>
+  <a href="#install" class="nav-cta">Get the extension</a>
+</nav>
+
+<!-- Floating mockup -->
+<div class="hero-mockup">
+  <div class="mock-header">
+    <span class="mock-logo">TRANSPARÉ</span>
+    <div class="mock-score">38</div>
+  </div>
+  <div class="mock-body">
+    <div class="scan-line"></div>
+    <div class="mock-product">Hydrating Serum</div>
+    <div class="mock-brand">Brand Name</div>
+    <div class="mock-verdict">
+      <div class="mock-dot"></div>
+      3 pore-clogging + 1 irritant flagged
+    </div>
+    <div class="mock-label">Flagged ingredients</div>
+    <div class="mock-flag">
+      <span class="mock-pill pill-red">pore-clogging</span>
+      <div>
+        <div class="mock-flag-name">Coconut Oil</div>
+        <div class="mock-flag-desc">Rating 4/5. Significant pore-clogging risk for acne-prone skin.</div>
+      </div>
+    </div>
+    <div class="mock-flag">
+      <span class="mock-pill pill-red">pore-clogging</span>
+      <div>
+        <div class="mock-flag-name">Isopropyl Myristate</div>
+        <div class="mock-flag-desc">Rating 5/5. Major pore-clogger — avoid entirely.</div>
+      </div>
+    </div>
+    <div class="mock-flag">
+      <span class="mock-pill pill-amber">irritant</span>
+      <div>
+        <div class="mock-flag-name">Fragrance</div>
+        <div class="mock-flag-desc">Top cause of allergic contact dermatitis.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hero -->
+<section class="hero">
+  <p class="hero-eyebrow">Chrome Extension · Free</p>
+  <h1>Know exactly<br/>what's <em>in</em> your<br/>skincare.</h1>
+  <p class="hero-sub">Transparé scans ingredients automatically on Sephora, Ulta, Bluemercury, and more. No copy-paste. No guessing.</p>
+  <div class="hero-actions">
+    <a href="#install" class="btn-primary">Install free extension</a>
+    <a href="#how" class="btn-ghost">See how it works</a>
+  </div>
+  <p class="hero-note">Works on Chrome · Free forever · No account required to scan</p>
+</section>
+
+<!-- How it works -->
+<section class="section" id="how">
+  <div class="section-label reveal">How it works</div>
+  <div class="steps reveal">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-title">Install the extension</div>
+      <div class="step-desc">One click from the Chrome Web Store. No sign-up required to get started.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-title">Browse normally</div>
+      <div class="step-desc">Shop on Sephora, Ulta, Bluemercury, or any beauty site you already use.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-title">Click Transparé</div>
+      <div class="step-desc">One click on the extension icon. Results appear in seconds — no copy-paste needed.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-title">See what's flagged</div>
+      <div class="step-desc">Pore-clogging ingredients, irritants, and toxics — with confidence levels and source attribution.</div>
+    </div>
+  </div>
+</section>
+
+<!-- Sample ingredients -->
+<section class="ingredients-section reveal">
+  <div class="section-label">What we flag</div>
+  <div class="ing-grid">
+    <div class="ing-card">
+      <div class="ing-name">Isopropyl Myristate</div>
+      <div class="ing-rating">
+        <span class="ing-dots">
+          <span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span>
+        </span>
+        5/5 · AcneClinic + CLEARSTEM
+      </div>
+    </div>
+    <div class="ing-card">
+      <div class="ing-name">Coconut Oil</div>
+      <div class="ing-rating">
+        <span class="ing-dots">
+          <span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-empty"></span>
+        </span>
+        4/5 · AcneClinic + CLEARSTEM
+      </div>
+    </div>
+    <div class="ing-card">
+      <div class="ing-name">Algae Extract</div>
+      <div class="ing-rating">
+        <span class="ing-dots">
+          <span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span>
+        </span>
+        5/5 · AcneClinic
+      </div>
+    </div>
+    <div class="ing-card">
+      <div class="ing-name">Wheat Germ Oil</div>
+      <div class="ing-rating">
+        <span class="ing-dots">
+          <span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span>
+        </span>
+        5/5 · AcneClinic + CLEARSTEM
+      </div>
+    </div>
+    <div class="ing-card">
+      <div class="ing-name">Fragrance / Parfum</div>
+      <div class="ing-rating">Irritant · Top allergen</div>
+    </div>
+    <div class="ing-card">
+      <div class="ing-name">Zinc Myristate</div>
+      <div class="ing-rating">
+        <span class="ing-dots">
+          <span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-empty"></span><span class="dot-empty"></span>
+        </span>
+        3/5 · CLEARSTEM
+      </div>
+    </div>
+    <div class="ing-card">
+      <div class="ing-name">Marula Oil</div>
+      <div class="ing-rating">
+        <span class="ing-dots">
+          <span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-empty"></span><span class="dot-empty"></span>
+        </span>
+        3/5 · CLEARSTEM
+      </div>
+    </div>
+    <div class="ing-card">
+      <div class="ing-name">Sodium Lauryl Sulfate</div>
+      <div class="ing-rating">Irritant · Strips skin barrier</div>
+    </div>
+  </div>
+</section>
+
+<!-- Trust -->
+<section class="trust reveal">
+  <div class="trust-inner">
+    <h2>Data from the sources<br/><em>estheticians actually trust.</em></h2>
+    <p>Transparé cross-references AcneClinic NYC and CLEARSTEM's ingredient lists — two of the most-cited sources in acne skincare — and shows you exactly which ingredients are flagged by which source.</p>
+    <div class="source-badges">
+      <span class="source-badge">AcneClinic NYC</span>
+      <span class="source-badge">CLEARSTEM</span>
+      <span class="source-badge">Fulton Comedogenicity Scale</span>
+    </div>
+    <p style="font-size:13px;color:rgba(232,220,200,0.3)">"Non-comedogenic" is not regulated. Any brand can put it on any product.<br/>Transparé shows you what the label won't.</p>
+  </div>
+</section>
+
+<!-- Email capture -->
+<section class="capture" id="install">
+  <h2>Get early access</h2>
+  <p>Enter your email to get the extension link and updates on new features.</p>
+  <div class="capture-form" id="capture-form">
+    <input type="email" class="email-input" id="email-input" placeholder="your@email.com"/>
+    <button class="btn-primary" onclick="submitEmail()">Get access</button>
+  </div>
+  <div class="success-msg" id="success-msg">You're in. Check your email for the extension link.</div>
+  <p class="capture-note">No spam. Unsubscribe anytime.</p>
+</section>
+
+<footer>
+  TRANSPARÉ © 2026 · transparency + care
+</footer>
+
+<script>
+async function submitEmail() {
+  const email = document.getElementById('email-input').value.trim();
+  if (!email || !email.includes('@')) {
+    document.getElementById('email-input').style.borderColor = 'rgba(192,57,43,0.6)';
+    return;
+  }
+  try {
+    await fetch('https://transpare-api-production.up.railway.app/waitlist', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({email, source: 'landing'})
+    });
+  } catch(e) {}
+  document.getElementById('capture-form').style.display = 'none';
+  document.getElementById('success-msg').style.display = 'block';
+}
+
+document.getElementById('email-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitEmail();
+});
+
+// Scroll reveals
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, {threshold: 0.1});
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
