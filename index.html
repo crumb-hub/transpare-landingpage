@@ -418,6 +418,57 @@ nav{
   padding:12px;
 }
 
+/* ── stats grid ── */
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:1px;
+  background:var(--cream-border);
+  border:0.5px solid var(--cream-border);
+  margin-bottom:1px;
+}
+.stat-card{
+  background:var(--bg);
+  padding:32px 28px;
+}
+.stat-num{
+  font-family:'DM Serif Display',serif;
+  font-size:36px;
+  color:var(--cream);
+  line-height:1;
+  margin-bottom:8px;
+}
+.stat-label{
+  font-size:12px;
+  color:var(--cream-dim);
+  line-height:1.4;
+}
+.ing-categories{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:1px;
+  background:var(--cream-border);
+  border:0.5px solid var(--cream-border);
+  border-top:none;
+}
+.ing-cat{
+  background:var(--bg);
+  padding:12px 20px;
+  font-size:12px;
+  color:var(--cream-dim);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.ing-cat::before{
+  content:'';
+  width:4px;height:4px;
+  border-radius:50%;
+  background:var(--cream);
+  opacity:0.3;
+  flex-shrink:0;
+}
+
 /* ── footer ── */
 footer{
   padding:40px;
@@ -447,7 +498,7 @@ footer{
 
 <nav>
   <a href="#" class="nav-logo">TRANSPARÉ</a>
-  <a href="#install" class="nav-cta">Get the extension</a>
+  <a href="#install" class="nav-cta">Install free</a>
 </nav>
 
 <!-- Floating mockup -->
@@ -493,7 +544,7 @@ footer{
 <section class="hero">
   <p class="hero-eyebrow">Chrome Extension · Free</p>
   <h1>Know exactly<br/>what's <em>in</em> your<br/>skincare.</h1>
-  <p class="hero-sub">Transparé scans ingredients automatically on Sephora, Ulta, Bluemercury, and more. No copy-paste. No guessing.</p>
+  <p class="hero-sub">Transparé scans ingredients automatically on Sephora, Ulta, and more. No copy-paste. No guessing.</p>
   <div class="hero-actions">
     <a href="#install" class="btn-primary">Install free extension</a>
     <a href="#how" class="btn-ghost">See how it works</a>
@@ -528,84 +579,52 @@ footer{
   </div>
 </section>
 
-<!-- Sample ingredients -->
+<!-- Stats section -->
 <section class="ingredients-section reveal">
-  <div class="section-label">What we flag</div>
-  <div class="ing-grid">
-    <div class="ing-card">
-      <div class="ing-name">Isopropyl Myristate</div>
-      <div class="ing-rating">
-        <span class="ing-dots">
-          <span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span>
-        </span>
-        5/5 · AcneClinic + CLEARSTEM
-      </div>
+  <div class="section-label">The database</div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-num">500+</div>
+      <div class="stat-label">Pore-clogging ingredients tracked</div>
     </div>
-    <div class="ing-card">
-      <div class="ing-name">Coconut Oil</div>
-      <div class="ing-rating">
-        <span class="ing-dots">
-          <span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-empty"></span>
-        </span>
-        4/5 · AcneClinic + CLEARSTEM
-      </div>
+    <div class="stat-card">
+      <div class="stat-num">3</div>
+      <div class="stat-label">Confidence levels — high, medium, debated</div>
     </div>
-    <div class="ing-card">
-      <div class="ing-name">Algae Extract</div>
-      <div class="ing-rating">
-        <span class="ing-dots">
-          <span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span>
-        </span>
-        5/5 · AcneClinic
-      </div>
+    <div class="stat-card">
+      <div class="stat-num">0/5 → 5/5</div>
+      <div class="stat-label">Comedogenic scale — not just a binary flag</div>
     </div>
-    <div class="ing-card">
-      <div class="ing-name">Wheat Germ Oil</div>
-      <div class="ing-rating">
-        <span class="ing-dots">
-          <span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span>
-        </span>
-        5/5 · AcneClinic + CLEARSTEM
-      </div>
+    <div class="stat-card">
+      <div class="stat-num">Any site</div>
+      <div class="stat-label">Sephora, Ulta, Bluemercury, DTC brands and more</div>
     </div>
-    <div class="ing-card">
-      <div class="ing-name">Fragrance / Parfum</div>
-      <div class="ing-rating">Irritant · Top allergen</div>
-    </div>
-    <div class="ing-card">
-      <div class="ing-name">Zinc Myristate</div>
-      <div class="ing-rating">
-        <span class="ing-dots">
-          <span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-empty"></span><span class="dot-empty"></span>
-        </span>
-        3/5 · CLEARSTEM
-      </div>
-    </div>
-    <div class="ing-card">
-      <div class="ing-name">Marula Oil</div>
-      <div class="ing-rating">
-        <span class="ing-dots">
-          <span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-filled"></span><span class="dot-empty"></span><span class="dot-empty"></span>
-        </span>
-        3/5 · CLEARSTEM
-      </div>
-    </div>
-    <div class="ing-card">
-      <div class="ing-name">Sodium Lauryl Sulfate</div>
-      <div class="ing-rating">Irritant · Strips skin barrier</div>
-    </div>
+  </div>
+  <div class="ing-categories">
+    <div class="ing-cat">Comedogenic oils &amp; butters</div>
+    <div class="ing-cat">Algae &amp; seaweed derivatives</div>
+    <div class="ing-cat">Comedogenic esters</div>
+    <div class="ing-cat">Fragrance &amp; allergens</div>
+    <div class="ing-cat">Formaldehyde releasers</div>
+    <div class="ing-cat">Hormone disruptors</div>
+    <div class="ing-cat">Botanical INCI names</div>
+    <div class="ing-cat">Marketing name aliases</div>
+    <div class="ing-cat">Sulfates &amp; harsh surfactants</div>
+    <div class="ing-cat">D&amp;C colorants</div>
+    <div class="ing-cat">Lanolin derivatives</div>
+    <div class="ing-cat">Waxes &amp; occlusive agents</div>
   </div>
 </section>
 
 <!-- Trust -->
 <section class="trust reveal">
   <div class="trust-inner">
-    <h2>Data from the sources<br/><em>estheticians actually trust.</em></h2>
-    <p>Transparé cross-references AcneClinic NYC and CLEARSTEM's ingredient lists — two of the most-cited sources in acne skincare — and shows you exactly which ingredients are flagged by which source.</p>
+    <h2>Nuanced data,<br/><em>not a binary flag.</em></h2>
+    <p>Transparé is built on peer-reviewed dermatology research and independent esthetician standards. Every ingredient is rated on a 0–5 comedogenic scale with a confidence level — because not all pore-cloggers are equal, and formulation context matters.</p>
     <div class="source-badges">
-      <span class="source-badge">AcneClinic NYC</span>
-      <span class="source-badge">CLEARSTEM</span>
-      <span class="source-badge">Fulton Comedogenicity Scale</span>
+      <span class="source-badge">Peer-reviewed dermatology research</span>
+      <span class="source-badge">Independent esthetician standards</span>
+      <span class="source-badge">0–5 comedogenic scale</span>
     </div>
     <p style="font-size:13px;color:rgba(232,220,200,0.3)">"Non-comedogenic" is not regulated. Any brand can put it on any product.<br/>Transparé shows you what the label won't.</p>
   </div>
@@ -613,13 +632,13 @@ footer{
 
 <!-- Email capture -->
 <section class="capture" id="install">
-  <h2>Get early access</h2>
-  <p>Enter your email to get the extension link and updates on new features.</p>
+  <h2>Install Transparé free</h2>
+  <p>Enter your email to get the Chrome extension link — takes 30 seconds to install.</p>
   <div class="capture-form" id="capture-form">
     <input type="email" class="email-input" id="email-input" placeholder="your@email.com"/>
-    <button class="btn-primary" onclick="submitEmail()">Get access</button>
+    <button class="btn-primary" onclick="submitEmail()">Get the extension</button>
   </div>
-  <div class="success-msg" id="success-msg">You're in. Check your email for the extension link.</div>
+  <div class="success-msg" id="success-msg">Check your email — we'll send you the Chrome extension link shortly.</div>
   <p class="capture-note">No spam. Unsubscribe anytime.</p>
 </section>
 
