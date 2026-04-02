@@ -1,678 +1,343 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Transparé — Know What's In Your Skincare</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0e0e0c;
-  --cream:#e8dcc8;
-  --cream-dim:rgba(232,220,200,0.5);
-  --cream-faint:rgba(232,220,200,0.12);
-  --cream-border:rgba(232,220,200,0.15);
-  --red:#c0392b;
-  --amber:#b8860b;
-  --green:#2d6a4f;
-}
-html{scroll-behavior:smooth}
-body{
-  background:var(--bg);
-  color:var(--cream);
-  font-family:'DM Sans',sans-serif;
-  font-weight:300;
-  line-height:1.7;
-  min-height:100vh;
-  overflow-x:hidden;
-}
+const express = require('express');
+const cors = require('cors');
+require('dotenv').config();
 
-/* ── noise texture overlay ── */
-body::before{
-  content:'';
-  position:fixed;
-  inset:0;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events:none;
-  z-index:0;
-}
+const { createClient } = require('@supabase/supabase-js');
 
-/* ── nav ── */
-nav{
-  position:fixed;
-  top:0;left:0;right:0;
-  z-index:100;
-  padding:20px 40px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  background:rgba(14,14,12,0.85);
-  backdrop-filter:blur(12px);
-  border-bottom:0.5px solid var(--cream-border);
-}
-.nav-logo{
-  font-family:'DM Serif Display',serif;
-  font-size:18px;
-  letter-spacing:0.12em;
-  color:var(--cream);
-  text-decoration:none;
-}
-.nav-cta{
-  background:var(--cream);
-  color:var(--bg);
-  border:none;
-  padding:8px 20px;
-  border-radius:2px;
-  font-family:'DM Sans',sans-serif;
-  font-size:12px;
-  font-weight:500;
-  letter-spacing:0.06em;
-  cursor:pointer;
-  text-decoration:none;
-  transition:opacity 0.2s;
-}
-.nav-cta:hover{opacity:0.85}
+const app = express();
+const PORT = process.env.PORT || 8080;
 
-/* ── hero ── */
-.hero{
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:flex-start;
-  padding:120px 40px 80px;
-  position:relative;
-  z-index:1;
-  max-width:900px;
-}
-.hero-eyebrow{
-  font-size:11px;
-  letter-spacing:0.16em;
-  color:var(--cream-dim);
-  text-transform:uppercase;
-  margin-bottom:24px;
-  opacity:0;
-  animation:fadeUp 0.8s 0.2s ease forwards;
-}
-.hero h1{
-  font-family:'DM Serif Display',serif;
-  font-size:clamp(48px,7vw,88px);
-  font-weight:400;
-  line-height:1.05;
-  color:var(--cream);
-  margin-bottom:28px;
-  opacity:0;
-  animation:fadeUp 0.8s 0.35s ease forwards;
-}
-.hero h1 em{
-  font-style:italic;
-  color:var(--cream-dim);
-}
-.hero-sub{
-  font-size:17px;
-  color:var(--cream-dim);
-  max-width:500px;
-  margin-bottom:48px;
-  opacity:0;
-  animation:fadeUp 0.8s 0.5s ease forwards;
-  font-weight:300;
-}
-.hero-actions{
-  display:flex;
-  gap:16px;
-  align-items:center;
-  flex-wrap:wrap;
-  opacity:0;
-  animation:fadeUp 0.8s 0.65s ease forwards;
-}
-.btn-primary{
-  background:var(--cream);
-  color:var(--bg);
-  border:none;
-  padding:14px 32px;
-  border-radius:2px;
-  font-family:'DM Sans',sans-serif;
-  font-size:13px;
-  font-weight:500;
-  letter-spacing:0.04em;
-  cursor:pointer;
-  text-decoration:none;
-  display:inline-block;
-  transition:opacity 0.2s,transform 0.2s;
-}
-.btn-primary:hover{opacity:0.9;transform:translateY(-1px)}
-.btn-ghost{
-  color:var(--cream-dim);
-  font-size:13px;
-  text-decoration:none;
-  letter-spacing:0.04em;
-  border-bottom:0.5px solid var(--cream-border);
-  padding-bottom:2px;
-  transition:color 0.2s;
-}
-.btn-ghost:hover{color:var(--cream)}
-.hero-note{
-  font-size:11px;
-  color:rgba(232,220,200,0.25);
-  margin-top:16px;
-  opacity:0;
-  animation:fadeUp 0.8s 0.8s ease forwards;
-}
+// ─── Supabase client ─────────────────────────────────────────────
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
 
-/* ── floating demo mockup ── */
-.hero-mockup{
-  position:fixed;
-  right:60px;
-  top:50%;
-  transform:translateY(-50%);
-  width:280px;
-  background:#1a1a18;
-  border:0.5px solid var(--cream-border);
-  border-radius:12px;
-  overflow:hidden;
-  box-shadow:0 40px 80px rgba(0,0,0,0.6);
-  opacity:0;
-  animation:slideIn 1s 0.9s ease forwards;
-  z-index:2;
-}
-@media(max-width:900px){.hero-mockup{display:none}}
-.mock-header{
-  padding:14px 16px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  border-bottom:0.5px solid var(--cream-border);
-}
-.mock-logo{
-  font-family:'DM Serif Display',serif;
-  font-size:12px;
-  letter-spacing:0.1em;
-  color:var(--cream);
-}
-.mock-score{
-  width:32px;height:32px;
-  border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:12px;font-weight:500;
-  background:#c0392b;
-  color:#fff;
-}
-.mock-body{padding:14px 16px}
-.mock-product{font-size:12px;font-weight:500;color:var(--cream);margin-bottom:4px}
-.mock-brand{font-size:10px;color:var(--cream-dim);margin-bottom:12px}
-.mock-verdict{
-  background:rgba(192,57,43,0.15);
-  border:0.5px solid rgba(192,57,43,0.3);
-  border-radius:6px;
-  padding:8px 10px;
-  font-size:10px;
-  color:#e07070;
-  margin-bottom:12px;
-  display:flex;
-  align-items:center;
-  gap:6px;
-}
-.mock-dot{width:6px;height:6px;border-radius:50%;background:#c0392b;flex-shrink:0}
-.mock-label{font-size:9px;letter-spacing:0.1em;color:var(--cream-dim);text-transform:uppercase;margin-bottom:8px}
-.mock-flag{
-  background:var(--cream-faint);
-  border-radius:6px;
-  padding:8px 10px;
-  margin-bottom:6px;
-  display:flex;
-  gap:8px;
-  align-items:flex-start;
-}
-.mock-pill{
-  font-size:8px;
-  font-weight:500;
-  padding:2px 6px;
-  border-radius:3px;
-  flex-shrink:0;
-  margin-top:1px;
-}
-.pill-red{background:rgba(192,57,43,0.2);color:#e07070}
-.pill-amber{background:rgba(184,134,11,0.2);color:#d4a017}
-.mock-flag-name{font-size:11px;font-weight:500;color:var(--cream)}
-.mock-flag-desc{font-size:9px;color:var(--cream-dim);line-height:1.4;margin-top:2px}
+// ─── Middleware ───────────────────────────────────────────────────
+app.use(cors({
+  origin: '*', // tighten this once you have a domain
+  methods: ['GET', 'POST'],
+}));
+app.use(express.json());
 
-/* ── scan animation ── */
-.scan-line{
-  height:1px;
-  background:linear-gradient(90deg,transparent,rgba(232,220,200,0.4),transparent);
-  animation:scan 2s ease-in-out infinite;
-  margin-bottom:12px;
-}
-@keyframes scan{0%,100%{opacity:0;transform:translateY(-10px)}50%{opacity:1;transform:translateY(0)}}
-
-/* ── how it works ── */
-.section{
-  padding:100px 40px;
-  position:relative;
-  z-index:1;
-  max-width:1100px;
-  margin:0 auto;
-}
-.section-label{
-  font-size:10px;
-  letter-spacing:0.16em;
-  color:var(--cream-dim);
-  text-transform:uppercase;
-  margin-bottom:48px;
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-.section-label::after{
-  content:'';
-  flex:1;
-  height:0.5px;
-  background:var(--cream-border);
-}
-.steps{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-  gap:1px;
-  background:var(--cream-border);
-  border:0.5px solid var(--cream-border);
-}
-.step{
-  background:var(--bg);
-  padding:40px 32px;
-}
-.step-num{
-  font-family:'DM Serif Display',serif;
-  font-size:48px;
-  color:rgba(232,220,200,0.08);
-  line-height:1;
-  margin-bottom:16px;
-}
-.step-title{
-  font-size:15px;
-  font-weight:500;
-  color:var(--cream);
-  margin-bottom:8px;
-}
-.step-desc{
-  font-size:13px;
-  color:var(--cream-dim);
-  line-height:1.6;
-}
-
-/* ── ingredients flagged section ── */
-.ingredients-section{
-  padding:0 40px 100px;
-  position:relative;z-index:1;
-  max-width:1100px;
-  margin:0 auto;
-}
-.ing-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:1px;
-  background:var(--cream-border);
-  border:0.5px solid var(--cream-border);
-  margin-top:48px;
-}
-.ing-card{
-  background:var(--bg);
-  padding:20px 24px;
-}
-.ing-name{font-size:13px;font-weight:500;color:var(--cream);margin-bottom:4px}
-.ing-rating{font-size:10px;color:var(--cream-dim)}
-.ing-dots{display:inline-flex;gap:2px;margin-right:4px}
-.dot-filled{width:6px;height:6px;border-radius:50%;background:var(--cream);opacity:0.8}
-.dot-empty{width:6px;height:6px;border-radius:50%;background:var(--cream);opacity:0.15}
-
-/* ── trust section ── */
-.trust{
-  padding:100px 40px;
-  border-top:0.5px solid var(--cream-border);
-  position:relative;z-index:1;
-}
-.trust-inner{
-  max-width:700px;
-  margin:0 auto;
-  text-align:center;
-}
-.trust h2{
-  font-family:'DM Serif Display',serif;
-  font-size:clamp(32px,4vw,52px);
-  font-weight:400;
-  line-height:1.15;
-  margin-bottom:20px;
-}
-.trust h2 em{font-style:italic;color:var(--cream-dim)}
-.trust p{
-  font-size:15px;
-  color:var(--cream-dim);
-  margin-bottom:40px;
-  max-width:480px;
-  margin-left:auto;
-  margin-right:auto;
-}
-.source-badges{
-  display:flex;
-  justify-content:center;
-  gap:12px;
-  flex-wrap:wrap;
-  margin-bottom:48px;
-}
-.source-badge{
-  border:0.5px solid var(--cream-border);
-  padding:6px 16px;
-  border-radius:2px;
-  font-size:11px;
-  color:var(--cream-dim);
-  letter-spacing:0.04em;
-}
-
-/* ── email capture ── */
-.capture{
-  padding:100px 40px;
-  background:var(--cream-faint);
-  border-top:0.5px solid var(--cream-border);
-  border-bottom:0.5px solid var(--cream-border);
-  position:relative;z-index:1;
-  text-align:center;
-}
-.capture h2{
-  font-family:'DM Serif Display',serif;
-  font-size:clamp(28px,3.5vw,44px);
-  font-weight:400;
-  margin-bottom:12px;
-}
-.capture p{
-  font-size:14px;
-  color:var(--cream-dim);
-  margin-bottom:32px;
-}
-.capture-form{
-  display:flex;
-  gap:8px;
-  justify-content:center;
-  max-width:440px;
-  margin:0 auto;
-}
-.email-input{
-  flex:1;
-  background:rgba(255,255,255,0.06);
-  border:0.5px solid var(--cream-border);
-  border-radius:2px;
-  padding:12px 16px;
-  color:var(--cream);
-  font-family:'DM Sans',sans-serif;
-  font-size:13px;
-  outline:none;
-  transition:border-color 0.2s;
-}
-.email-input::placeholder{color:rgba(232,220,200,0.25)}
-.email-input:focus{border-color:rgba(232,220,200,0.4)}
-.capture-note{font-size:11px;color:rgba(232,220,200,0.25);margin-top:12px}
-.success-msg{
-  display:none;
-  font-size:14px;
-  color:var(--cream);
-  padding:12px;
-}
-
-/* ── stats grid ── */
-.stats-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:1px;
-  background:var(--cream-border);
-  border:0.5px solid var(--cream-border);
-  margin-bottom:1px;
-}
-.stat-card{
-  background:var(--bg);
-  padding:32px 28px;
-}
-.stat-num{
-  font-family:'DM Serif Display',serif;
-  font-size:36px;
-  color:var(--cream);
-  line-height:1;
-  margin-bottom:8px;
-}
-.stat-label{
-  font-size:12px;
-  color:var(--cream-dim);
-  line-height:1.4;
-}
-.ing-categories{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
-  gap:1px;
-  background:var(--cream-border);
-  border:0.5px solid var(--cream-border);
-  border-top:none;
-}
-.ing-cat{
-  background:var(--bg);
-  padding:12px 20px;
-  font-size:12px;
-  color:var(--cream-dim);
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-.ing-cat::before{
-  content:'';
-  width:4px;height:4px;
-  border-radius:50%;
-  background:var(--cream);
-  opacity:0.3;
-  flex-shrink:0;
-}
-
-/* ── footer ── */
-footer{
-  padding:40px;
-  text-align:center;
-  font-size:11px;
-  color:rgba(232,220,200,0.2);
-  position:relative;z-index:1;
-  letter-spacing:0.06em;
-}
-
-/* ── animations ── */
-@keyframes fadeUp{
-  from{opacity:0;transform:translateY(20px)}
-  to{opacity:1;transform:translateY(0)}
-}
-@keyframes slideIn{
-  from{opacity:0;transform:translateY(-40%) translateX(20px)}
-  to{opacity:1;transform:translateY(-50%) translateX(0)}
-}
-
-/* ── scroll reveals ── */
-.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.7s ease,transform 0.7s ease}
-.reveal.visible{opacity:1;transform:none}
-</style>
-</head>
-<body>
-
-<nav>
-  <a href="#" class="nav-logo">TRANSPARÉ</a>
-  <a href="#install" class="nav-cta">Install free</a>
-</nav>
-
-<!-- Floating mockup -->
-<div class="hero-mockup">
-  <div class="mock-header">
-    <span class="mock-logo">TRANSPARÉ</span>
-    <div class="mock-score">38</div>
-  </div>
-  <div class="mock-body">
-    <div class="scan-line"></div>
-    <div class="mock-product">Hydrating Serum</div>
-    <div class="mock-brand">Brand Name</div>
-    <div class="mock-verdict">
-      <div class="mock-dot"></div>
-      3 pore-clogging + 1 irritant flagged
-    </div>
-    <div class="mock-label">Flagged ingredients</div>
-    <div class="mock-flag">
-      <span class="mock-pill pill-red">pore-clogging</span>
-      <div>
-        <div class="mock-flag-name">Coconut Oil</div>
-        <div class="mock-flag-desc">Rating 4/5. Significant pore-clogging risk for acne-prone skin.</div>
-      </div>
-    </div>
-    <div class="mock-flag">
-      <span class="mock-pill pill-red">pore-clogging</span>
-      <div>
-        <div class="mock-flag-name">Isopropyl Myristate</div>
-        <div class="mock-flag-desc">Rating 5/5. Major pore-clogger — avoid entirely.</div>
-      </div>
-    </div>
-    <div class="mock-flag">
-      <span class="mock-pill pill-amber">irritant</span>
-      <div>
-        <div class="mock-flag-name">Fragrance</div>
-        <div class="mock-flag-desc">Top cause of allergic contact dermatitis.</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Hero -->
-<section class="hero">
-  <p class="hero-eyebrow">Chrome Extension · Free</p>
-  <h1>Know exactly<br/>what's <em>in</em> your<br/>skincare.</h1>
-  <p class="hero-sub">Transparé scans ingredients automatically on Sephora, Ulta, and more. No copy-paste. No guessing.</p>
-  <div class="hero-actions">
-    <a href="#install" class="btn-primary">Install free extension</a>
-    <a href="#how" class="btn-ghost">See how it works</a>
-  </div>
-  <p class="hero-note">Works on Chrome · Free forever · No account required to scan</p>
-</section>
-
-<!-- How it works -->
-<section class="section" id="how">
-  <div class="section-label reveal">How it works</div>
-  <div class="steps reveal">
-    <div class="step">
-      <div class="step-num">01</div>
-      <div class="step-title">Install the extension</div>
-      <div class="step-desc">One click from the Chrome Web Store. No sign-up required to get started.</div>
-    </div>
-    <div class="step">
-      <div class="step-num">02</div>
-      <div class="step-title">Browse normally</div>
-      <div class="step-desc">Shop on Sephora, Ulta, Bluemercury, or any beauty site you already use.</div>
-    </div>
-    <div class="step">
-      <div class="step-num">03</div>
-      <div class="step-title">Click Transparé</div>
-      <div class="step-desc">One click on the extension icon. Results appear in seconds — no copy-paste needed.</div>
-    </div>
-    <div class="step">
-      <div class="step-num">04</div>
-      <div class="step-title">See what's flagged</div>
-      <div class="step-desc">Pore-clogging ingredients, irritants, and toxics — with confidence levels and source attribution.</div>
-    </div>
-  </div>
-</section>
-
-<!-- Stats section -->
-<section class="ingredients-section reveal">
-  <div class="section-label">The database</div>
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-num">500+</div>
-      <div class="stat-label">Pore-clogging ingredients tracked</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num">3</div>
-      <div class="stat-label">Confidence levels — high, medium, debated</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num">0/5 → 5/5</div>
-      <div class="stat-label">Comedogenic scale — not just a binary flag</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num">Any site</div>
-      <div class="stat-label">Sephora, Ulta, Bluemercury, DTC brands and more</div>
-    </div>
-  </div>
-  <div class="ing-categories">
-    <div class="ing-cat">Comedogenic oils &amp; butters</div>
-    <div class="ing-cat">Algae &amp; seaweed derivatives</div>
-    <div class="ing-cat">Comedogenic esters</div>
-    <div class="ing-cat">Fragrance &amp; allergens</div>
-    <div class="ing-cat">Formaldehyde releasers</div>
-    <div class="ing-cat">Hormone disruptors</div>
-    <div class="ing-cat">Botanical INCI names</div>
-    <div class="ing-cat">Marketing name aliases</div>
-    <div class="ing-cat">Sulfates &amp; harsh surfactants</div>
-    <div class="ing-cat">D&amp;C colorants</div>
-    <div class="ing-cat">Lanolin derivatives</div>
-    <div class="ing-cat">Waxes &amp; occlusive agents</div>
-  </div>
-</section>
-
-<!-- Trust -->
-<section class="trust reveal">
-  <div class="trust-inner">
-    <h2>Nuanced data,<br/><em>not a binary flag.</em></h2>
-    <p>Transparé is built on peer-reviewed dermatology research and independent esthetician standards. Every ingredient is rated on a 0–5 comedogenic scale with a confidence level — because not all pore-cloggers are equal, and formulation context matters.</p>
-    <div class="source-badges">
-      <span class="source-badge">Peer-reviewed dermatology research</span>
-      <span class="source-badge">Independent esthetician standards</span>
-      <span class="source-badge">0–5 comedogenic scale</span>
-    </div>
-    <p style="font-size:13px;color:rgba(232,220,200,0.3)">"Non-comedogenic" is not regulated. Any brand can put it on any product.<br/>Transparé shows you what the label won't.</p>
-  </div>
-</section>
-
-<!-- Email capture -->
-<section class="capture" id="install">
-  <h2>Install Transparé free</h2>
-  <p>Enter your email to get the Chrome extension link — takes 30 seconds to install.</p>
-  <div class="capture-form" id="capture-form">
-    <input type="email" class="email-input" id="email-input" placeholder="your@email.com"/>
-    <button class="btn-primary" onclick="submitEmail()">Get the extension</button>
-  </div>
-  <div class="success-msg" id="success-msg">Check your email — we'll send you the Chrome extension link shortly.</div>
-  <p class="capture-note">No spam. Unsubscribe anytime.</p>
-</section>
-
-<footer>
-  TRANSPARÉ © 2026 · transparency + care
-</footer>
-
-<script>
-async function submitEmail() {
-  const email = document.getElementById('email-input').value.trim();
-  if (!email || !email.includes('@')) {
-    document.getElementById('email-input').style.borderColor = 'rgba(192,57,43,0.6)';
-    return;
-  }
+// ─── Waitlist / email capture ────────────────────────────────
+app.post('/waitlist', async (req, res) => {
   try {
-    await fetch('https://transpare-api-production.up.railway.app/waitlist', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({email, source: 'landing'})
-    });
-  } catch(e) {}
-  document.getElementById('capture-form').style.display = 'none';
-  document.getElementById('success-msg').style.display = 'block';
-}
-
-document.getElementById('email-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') submitEmail();
+    const { email } = req.body;
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ error: 'valid email required' });
+    }
+    const { error } = await supabase
+      .from('waitlist')
+      .insert({ email, source: 'extension', created_at: new Date().toISOString() })
+      .select();
+    if (error && !error.message.includes('duplicate')) {
+      console.error('Waitlist insert error:', error);
+    }
+    res.json({ status: 'ok' });
+  } catch (e) {
+    res.json({ status: 'ok' }); // Silent fail — never block the user
+  }
 });
 
-// Scroll reveals
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
-}, {threshold: 0.1});
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-</script>
-</body>
-</html>
+// ─── Health check ─────────────────────────────────────────────────
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', product: 'Transparé API', version: '1.0.0' });
+});
+
+// ─── Normalize ingredient name ────────────────────────────────────
+function normalize(name) {
+  return name
+    .toLowerCase()
+    .replace(/[()]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// ─── Parse ingredient list string into array ──────────────────────
+// Returns { name, position, total } objects
+function parseIngredients(raw) {
+  if (!raw) return [];
+  const match = raw.match(/ingredients?[:\s]+(.+)/si);
+  const block = match ? match[1] : raw;
+  const names = block
+    .split(/[,;\/\n]+/)
+    .map(i => normalize(i.replace(/\(.*?\)/g, '')))
+    .filter(i => i.length > 2 && i.length < 120);
+  const total = names.length;
+  return names.map((name, idx) => ({ name, position: idx + 1, total }));
+}
+
+// ─── Concentration label ───────────────────────────────────────
+function getConcentration(position, total) {
+  if (!position || !total) return null;
+  const pct = position / total;
+  if (pct <= 0.25) return 'HIGH CONC.';
+  if (pct <= 0.60) return 'MID CONC.';
+  return 'LOW CONC.';
+}
+
+// ─── Resolve extract base ingredient ─────────────────────────
+// "moringa oleifera seed extract" -> check "moringa oleifera seed oil" / "moringa oil"
+// Only flag if the base ingredient is comedogenic
+async function resolveExtract(ingName) {
+  // Only process if ingredient ends with "extract"
+  if (!ingName.endsWith('extract')) return null;
+
+  // Strip "extract" and common suffixes to get base name
+  const base = ingName
+    .replace(/\s*(seed|leaf|root|flower|fruit|bark|stem|powder|oil|kernel)?\s*extract$/i, '')
+    .trim();
+
+  if (base.length < 4) return null;
+
+  // Check if base name or its oil/butter form is comedogenic
+  const variants = [
+    base,
+    base + ' oil',
+    base + ' seed oil',
+    base + ' butter',
+    base + ' kernel oil',
+  ];
+
+  for (const variant of variants) {
+    const { data } = await supabase
+      .from('ingredients')
+      .select('id, name, display_name, type, comedogenic_rating, description, confidence, sources')
+      .eq('name', variant)
+      .single();
+
+    if (data && data.type === 'comedogenic') {
+      // Return the base ingredient as the flag, with note it was from extract
+      return {
+        ...data,
+        display_name: data.display_name + ' (extract)',
+        description: data.description + ' Extract form also flagged.',
+      };
+    }
+
+    // Also check safe list — if base is safe, don't flag
+    if (data && data.type === 'safe') return null;
+  }
+
+  // Also check aliases for the base name
+  const { data: aliasData } = await supabase
+    .from('ingredient_aliases')
+    .select('ingredient_id, ingredients(id, name, display_name, type, comedogenic_rating, description, confidence, sources)')
+    .eq('alias', base)
+    .single();
+
+  if (aliasData?.ingredients?.type === 'comedogenic') {
+    return {
+      ...aliasData.ingredients,
+      display_name: aliasData.ingredients.display_name + ' (extract)',
+    };
+  }
+
+  // Unknown extract — don't flag (safe default)
+  return null;
+}
+
+// ─── Score calculator ─────────────────────────────────────────────
+function calculateScore(flags) {
+  if (flags.length === 0) return 95;
+  let penalty = 0;
+  for (const flag of flags) {
+    if (flag.type === 'comedogenic') {
+      penalty += ((flag.comedogenic_rating || 3) * 6);
+    } else if (flag.type === 'toxic') {
+      penalty += 18;
+    } else if (flag.type === 'irritant') {
+      penalty += 10;
+    }
+  }
+  return Math.max(5, Math.round(100 - penalty));
+}
+
+// ─── POST /analyze ────────────────────────────────────────────────
+// Body: { ingredients: "Water, Glycerin, Isopropyl Myristate...", retailer: "sephora" }
+// Returns: { score, flags, alternatives, ingredientCount }
+app.post('/analyze', async (req, res) => {
+  try {
+    const { ingredients: rawIngredients, retailer, productName, productBrand } = req.body;
+
+    if (!rawIngredients) {
+      return res.status(400).json({ error: 'ingredients field required' });
+    }
+
+    const parsed = parseIngredients(rawIngredients);
+    if (parsed.length === 0) {
+      return res.status(400).json({ error: 'could not parse ingredient list' });
+    }
+
+    // ── Step 1: Batch lookup — one query for all ingredients ──────
+    const flags = [];
+    const flaggedIds = new Set();
+
+    // Build position lookup map: ingredient name -> {position, total}
+    const positionMap = {};
+    for (const obj of parsed) {
+      positionMap[obj.name] = { position: obj.position, total: obj.total };
+    }
+
+    const uniqueNames = [...new Set(parsed.map(p => p.name))];
+    const extractIngredientObjs = parsed.filter(p => p.name.includes('extract'));
+    const regularIngredients = uniqueNames.filter(n => !n.includes('extract'));
+    const firstTwoWords = regularIngredients.map(n => n.split(' ').slice(0,2).join(' ')).filter(n => n.length > 6);
+    const allLookupTerms = [...new Set([...regularIngredients, ...firstTwoWords])];
+
+    // ── Batch 1: exact match ───────────────────────────────────────
+    const { data: exactMatches } = await supabase
+      .from('ingredients')
+      .select('id, name, display_name, type, comedogenic_rating, description, confidence, sources')
+      .in('name', allLookupTerms)
+      .in('type', ['comedogenic', 'irritant', 'toxic']);
+
+    if (exactMatches) {
+      for (const match of exactMatches) {
+        if (!flaggedIds.has(match.id)) {
+          const pos = positionMap[match.name] || {};
+          flags.push({
+            ...match,
+            position: pos.position || null,
+            total: pos.total || null,
+            concentration: getConcentration(pos.position, pos.total),
+          });
+          flaggedIds.add(match.id);
+        }
+      }
+    }
+
+    // ── Batch 2: alias match ───────────────────────────────────────
+    const { data: aliasMatches } = await supabase
+      .from('ingredient_aliases')
+      .select('alias, ingredients(id, name, display_name, type, comedogenic_rating, description, confidence, sources)')
+      .in('alias', allLookupTerms);
+
+    if (aliasMatches) {
+      for (const am of aliasMatches) {
+        const ing = am.ingredients;
+        if (ing && ['comedogenic','irritant','toxic'].includes(ing.type) && !flaggedIds.has(ing.id)) {
+          const pos = positionMap[am.alias] || {};
+          flags.push({
+            ...ing,
+            position: pos.position || null,
+            total: pos.total || null,
+            concentration: getConcentration(pos.position, pos.total),
+          });
+          flaggedIds.add(ing.id);
+        }
+      }
+    }
+
+    // ── Batch 3: extract resolution (parallel) ────────────────────
+    if (extractIngredientObjs.length > 0) {
+      const extractResults = await Promise.all(
+        extractIngredientObjs.map(obj => resolveExtract(obj.name).then(r => r ? {
+          ...r,
+          position: obj.position,
+          total: obj.total,
+          concentration: getConcentration(obj.position, obj.total),
+        } : null))
+      );
+      for (const result of extractResults) {
+        if (result && !flaggedIds.has(result.id)) {
+          flags.push(result);
+          flaggedIds.add(result.id);
+        }
+      }
+    }
+
+    // ── Step 2: calculate score ────────────────────────────────────
+    const score = calculateScore(flags);
+
+    // ── Step 3: get alternatives ───────────────────────────────────
+    // Determine product category from ingredient patterns
+    const category = guessCategory(parsed, productName);
+
+    let { data: alternatives } = await supabase
+      .from('alternatives')
+      .select('id, name, brand, clyr_score, price_usd, affiliate_url, retailer, category')
+      .eq('category', category)
+      .order('clyr_score', { ascending: false })
+      .limit(3);
+
+    if (!alternatives || alternatives.length === 0) {
+      // Fallback to any high-scoring alternatives
+      let { data: fallbackAlts } = await supabase
+        .from('alternatives')
+        .select('id, name, brand, clyr_score, price_usd, affiliate_url, retailer, category')
+        .order('clyr_score', { ascending: false })
+        .limit(3);
+      alternatives = fallbackAlts || [];
+    }
+
+    // ── Step 4: log scan event (anonymized) ───────────────────────
+    await supabase.from('scan_events').insert({
+      retailer: retailer || 'unknown',
+      clyr_score: score,
+      flag_count: flags.length,
+      flag_types: [...new Set(flags.map(f => f.type))],
+    });
+
+    // ── Step 5: return response ────────────────────────────────────
+    return res.json({
+      score,
+      flags: flags.map(f => ({
+        name: f.display_name || f.name,
+        type: f.type,
+        comedogenic_rating: f.comedogenic_rating,
+        description: f.description,
+      })),
+      alternatives: alternatives.map(a => ({
+        name: a.name,
+        brand: a.brand,
+        score: a.clyr_score,
+        price: a.price_usd,
+        url: a.affiliate_url,
+        retailer: a.retailer,
+        category: a.category,
+      })),
+      ingredientCount: parsed.length,
+      category,
+    });
+
+  } catch (err) {
+    console.error('Analyze error:', err);
+    return res.status(500).json({ error: 'internal server error' });
+  }
+});
+
+// ─── GET /ingredients/search?q=isopropyl ─────────────────────────
+app.get('/ingredients/search', async (req, res) => {
+  const { q } = req.query;
+  if (!q || q.length < 2) return res.status(400).json({ error: 'query too short' });
+
+  const { data, error } = await supabase
+    .from('ingredients')
+    .select('name, display_name, type, comedogenic_rating, description')
+    .ilike('name', `%${q.toLowerCase()}%`)
+    .limit(10);
+
+  if (error) return res.status(500).json({ error: error.message });
+  return res.json({ results: data });
+});
+
+// ─── Category guesser ─────────────────────────────────────────────
+function guessCategory(ingredients, productName) {
+  const name = (productName || '').toLowerCase();
+  const ings = ingredients.join(' ');
+
+  if (name.includes('spf') || name.includes('sunscreen') || ings.includes('titanium dioxide') || ings.includes('zinc oxide')) return 'spf';
+  if (name.includes('serum')) return 'serum';
+  if (name.includes('cleanser') || name.includes('wash') || name.includes('foam')) return 'cleanser';
+  if (name.includes('toner')) return 'toner';
+  if (name.includes('moisturizer') || name.includes('cream') || name.includes('lotion')) return 'moisturizer';
+  return 'moisturizer'; // default
+}
+
+// ─── Start server ─────────────────────────────────────────────────
+app.listen(PORT, () => {
+  console.log(`Transparé API running on port ${PORT}`);
+});
+  
